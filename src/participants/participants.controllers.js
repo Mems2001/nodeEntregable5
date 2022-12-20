@@ -9,6 +9,16 @@ const createParticipant = async(obj) => {
     })
 };
 
+const findParticipantByUserIdAndConversationId = async(userId , conversationId) => {
+    return await Participants.findOne({
+        where: {
+            userId ,
+            conversationId
+        }
+    })
+};
+
 module.exports = {
-    createParticipant
+    createParticipant ,
+    findParticipantByUserIdAndConversationId
 }

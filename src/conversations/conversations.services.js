@@ -42,9 +42,10 @@ const getAllConversationsFromUsers = (req, res) => {
 };
 
 const getConversationById = (req , res) => {
-    const id = req.params.conversation_id;
+    const conversationId = req.params.conversation_id;
+    const userId = req.user.id;
 
-    conversationsControllers.findConversationById(id)
+    conversationsControllers.findConversationById(conversationId , userId)
         .then(data => {
             if (data) {
                 res.status(200).json(data)
@@ -64,9 +65,10 @@ const getConversationById = (req , res) => {
 const patchConversation = (req ,res) => {
     const {title , imageUrl} = req.body;
     const id = req.params.conversation_id;
+    const userId = req.user.id
 
     conversationsControllers.editConversation( id , {
-        title , imageUrl
+        title , imageUrl , userId
     })
         .then(data => {
             res.status(200).json({
@@ -83,8 +85,9 @@ const patchConversation = (req ,res) => {
 
 const deleteConversation = (req , res) => {
     const id = req.params.conversation_id;
+    const userId = req.user.id
 
-    conversationsControllers.destroyConversation(id)
+    conversationsControllers.destroyConversation(id , userId)
         .then(data => {
             if (data) {
                 res.status(200).json({
@@ -103,50 +106,10 @@ const deleteConversation = (req , res) => {
         })
 };
 
-const getAllMessagesFromConversation = (req , res) => {
-    const id = req.params.conversation_id;
-
-    conversationsControllers.findAllMessagesFromConversation(id)
-        .then(data => {
-            if (data) {
-                res.status(200).json(data)
-            } else {
-                res.status(404).json({
-                    message: 'Invalid ID'
-                })
-            }
-        })
-        .catch(err => {
-            res.status(400).json({
-                message: err.message
-            })
-        })
-};
-
-const postMessage = (req , res) => {
-    const conversationId = req.params.conversation_id;
-    const userId = req.user.id;
-    const {message} = req.body;
-
-    conversationsControllers.createMessage({
-        message , userId , conversationId
-    })
-        .then(data => {
-            res.status(200).json(data)
-        })
-        .catch(err => {
-            res.status(400).json({
-                message: err.message
-            })
-        })
-};
-
 module.exports = {
     postConversation ,
     getAllConversationsFromUsers ,
     getConversationById ,
     patchConversation ,
-    deleteConversation ,
-    getAllMessagesFromConversation ,
-    postMessage
+    deleteConversation
 }

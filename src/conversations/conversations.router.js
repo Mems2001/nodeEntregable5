@@ -12,8 +12,4 @@ router.route('/:conversation_id')
     .patch(passportJwt.authenticate('jwt' , {session:false}) , conversationsServices.patchConversation)
     .delete(passportJwt.authenticate('jwt' , {session:false}) , conversationsServices.deleteConversation)
 
-router.route('/:conversation_id/messages')
-    .get(passportJwt.authenticate('jwt' , {session:false}) , conversationsServices.getAllMessagesFromConversation)
-    .post(passportJwt.authenticate('jwt' , {session:false}) , conversationsServices.postMessage)
-
 module.exports = router

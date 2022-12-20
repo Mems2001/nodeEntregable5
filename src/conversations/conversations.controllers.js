@@ -32,26 +32,47 @@ const createConversation = async(obj) => {
     }
 } ;
 
-const findAllConversationsFromUser = async(id) => {
-    return await Conversations.findAll({
+// This controller will operate in participants model because it needs to get conversations in which the user is a participant, 
+//not only conversations in which the user is the creator
+const findAllConversationsFromUser = async(id) => {  
+    return await Participants.findAll({
         where: {
             userId : id ,
         } ,
         include: {
-            model: Users
+            model: Conversations
         } ,
         attributes: {
             exclude: [
+                'id' ,
+                'createdAt' ,
+                'updatedAt' ,
+                'conversationId' ,
                 'userId'
             ]
         }
     })
 };
 
-const findConversationById = async(id) => {
-    return await Conversations.findOne({
+// This controller will operate in Participants model because other way only the creator will be able to find 
+// the conversation by id and not the other participants
+const findConversationById = async(conversationId , userId) => {
+    return await Participants.findOne({
         where: {
-            id
+            conversationId ,
+            userId
+        } ,
+        include: {
+            model: Conversations
+        } ,
+        attributes: {
+            exclude: [
+                'id' ,
+                'createdAt' ,
+                'updatedAt' ,
+                'conversationId' ,
+                'userId'
+            ]
         }
     })
 };
@@ -62,46 +83,27 @@ const editConversation = async(id , obj) => {
         imageUrl: obj.imageUrl
     } , {
         where: {
-            id
+            id ,
+            userId: obj.userId
         }
     });
 
     return data[0]
 };
 
-const destroyConversation = async(id) => {
+const destroyConversation = async(id , userId) => {
     return await Conversations.destroy({
         where: {
-            id
+            id ,
+            userId
         }
     })
 };
-
-const findAllMessagesFromConversation = async(id) => {
-    return await Messages.findAll({
-        where: {
-            conversationId : id
-        }
-    })
-};
-
-const createMessage = async(obj) => {
-    const data = await Messages.create({
-        id: uuid.v4() ,
-        message: obj.message ,
-        userId: obj.userId ,
-        conversationId: obj.conversationId
-    });
-
-    return data
-} ;
 
 module.exports = {
     createConversation ,
     findAllConversationsFromUser ,
     findConversationById ,
     editConversation ,
-    destroyConversation ,
-    findAllMessagesFromConversation ,
-    createMessage
+    destroyConversation
 }
