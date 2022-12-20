@@ -2,15 +2,16 @@ const { findParticipantByUserIdAndConversationId } = require('../participants/pa
 const messagesControllers = require('./messages.controllers');
 
 const getAllMessagesFromConversations = (req , res) => {
-    const id = req.params.conversation_id;
+    const conversationId = req.params.conversation_id;
+    const partId = req.user.id
 
-    messagesControllers.findAllMessagesFromConversation(id)
+    messagesControllers.findAllMessagesFromConversation(conversationId , partId)
         .then(data => {
             if (data) {
                 res.status(200).json(data)
             } else {
                 res.status(404).json({
-                    message: 'Invalid ID'
+                    message: 'You are not a participant of this conversation'
                 })
             }
         })
@@ -28,9 +29,15 @@ const postMessage = (req ,res) => {
     
     messagesControllers.createMessage({
         userId , conversationId , message
-    })
+    } , userId)
         .then(data => {
-            res.status(201).json(data)
+            if (data) {
+                res.status(201).json(data)
+            } else {
+                res.status(400).json({
+                    message: 'You are not part of this conversation'
+                })
+            }
         })
         .catch(err => {
             res.status(400).json({

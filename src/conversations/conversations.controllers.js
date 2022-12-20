@@ -1,16 +1,17 @@
 const Conversations = require('../models/conversations.model');
 const Participants = require('../models/participants.model');
-const Messages = require('../models/messages.model');
 const uuid = require('uuid');
-const { findUserByPhone } = require('../users/users.controllers');
+const { findUserByPhone, findUserById } = require('../users/users.controllers');
 const Users = require('../models/users.model');
+const { findParticipantByUserIdAndConversationId } = require('../participants/participants.controllers');
 
 const createConversation = async(obj) => {
     const otherParticipant = await findUserByPhone(obj.participantPhone);
+    const creator = await findUserById(obj.ownerId);
 
     const newConversation = await Conversations.create({
         id: uuid.v4() ,
-        title: obj.title ,
+        title: `${creator.firstname} - ${otherParticipant.firstname}` ,
         imageUrl: obj.imageUrl ,
         userId: obj.ownerId  // creator's conversation
     });
@@ -63,8 +64,32 @@ const findConversationById = async(conversationId , userId) => {
             userId
         } ,
         include: {
-            model: Conversations
-        } ,
+            model: Conversations ,
+            include: {
+                model: Participants ,
+                attributes: {
+                    exclude: [
+                        'userId' ,
+                        'conversationId' ,
+                        'createdAt' ,
+                        'updatedAt'
+                    ]
+                } ,
+                include: {
+                    model: Users ,
+                    attributes: {
+                        exclude: [
+                            'password' ,
+                            'status' ,
+                            'isVerified' ,
+                            'createdAt' ,
+                            'updatedAt' ,
+                            'profileImage'
+                        ]
+                    }
+                }
+            }
+         } ,
         attributes: {
             exclude: [
                 'id' ,
@@ -77,27 +102,43 @@ const findConversationById = async(conversationId , userId) => {
     })
 };
 
-const editConversation = async(id , obj) => {
-    const data = await Conversations.update({
-        title: obj.title ,
-        imageUrl: obj.imageUrl
-    } , {
-        where: {
-            id ,
-            userId: obj.userId
-        }
-    });
+const editConversation = async(conversationId , partId , obj) => {
 
-    return data[0]
+    try {
+        const participant = await findParticipantByUserIdAndConversationId(partId , conversationId)
+        // console.log(participant)
+ 
+        const data = await Conversations.update({
+            title: obj.title ,
+            imageUrl: obj.imageUrl
+        } , {
+            where: {
+                id: conversationId
+            }
+        });
+
+        return data[0]
+ 
+    } catch (error) {
+        return null
+    }
 };
 
-const destroyConversation = async(id , userId) => {
-    return await Conversations.destroy({
-        where: {
-            id ,
-            userId
-        }
-    })
+const destroyConversation = async(conversationId , partId) => {
+    
+    try {
+        await findParticipantByUserIdAndConversationId(partId , conversationId)
+
+        const data = await Conversations.destroy({
+            where: {
+                id: conversationId
+            }
+        })
+
+        return data
+    } catch (error) {
+        return null
+    }
 };
 
 module.exports = {

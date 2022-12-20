@@ -1,23 +1,48 @@
 const uuid = require('uuid');
 const Messages = require('../models/messages.model');
+const { findParticipantByUserIdAndConversationId } = require('../participants/participants.controllers');
 
-const findAllMessagesFromConversation = async(id) => {
-    return await Messages.findAll({
-        where: {
-            conversationId: id
+const findAllMessagesFromConversation = async(conversationId , partId) => {
+    try {
+        const a = await findParticipantByUserIdAndConversationId(partId , conversationId)
+        console.log(a)
+        if (a) {
+            const data = await Messages.findAll({
+                where: {
+                    conversationId
+                }
+            })
+            
+            return data
+        } else {
+            return null
         }
-    })
+
+    } catch (error) {
+        return null
+    }
 };
 
-const createMessage = async(obj) => {
-    const data = await Messages.create({
-        id: uuid.v4() ,
-        message: obj.message ,
-        userId: obj.userId ,
-        conversationId: obj.conversationId
-    });
-    
-    return data
+const createMessage = async(obj , userId) => {
+    try {
+        const a = await findParticipantByUserIdAndConversationId(userId , obj.conversationId)
+        console.log(a)
+        if (a) {
+            const data = await Messages.create({
+                id: uuid.v4() ,
+                message: obj.message ,
+                userId: obj.userId ,
+                conversationId: obj.conversationId
+            });
+            
+            return data
+        } else {
+            return null
+        }
+    } catch (error) {
+        return null
+    }
+
 };
 
 const findOneMessage = async(messageId , conversationId) => {

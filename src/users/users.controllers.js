@@ -38,9 +38,20 @@ const createUser = async(obj) => {
     })
 };
 
+const updateUser = async(obj , id) => {
+    const data = await Users.update(obj , {
+        where: {
+            id
+        }
+    })
+
+    return data[0]
+};
+
 module.exports = {
     findUserByEmail , 
     findUserById ,
     createUser ,
-    findUserByPhone
+    findUserByPhone ,
+    updateUser
 }

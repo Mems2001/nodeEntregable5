@@ -1,12 +1,12 @@
 const conversationsControllers = require('./conversations.controllers');
 
 const postConversation = (req, res) => {
-    const {title , imageUrl , participantPhone} = req.body;
+    const {imageUrl , participantPhone} = req.body;
     const ownerId = req.user.id;
 
     if (participantPhone) {
         conversationsControllers.createConversation({
-            title, imageUrl , participantPhone , ownerId
+            imageUrl , participantPhone , ownerId
         })
             .then(data => {
                 res.status(201).json(data)
@@ -51,7 +51,7 @@ const getConversationById = (req , res) => {
                 res.status(200).json(data)
             } else {
                 res.status(404).json({
-                    message: 'Invalid ID'
+                    message: 'Conversation not found'
                 })
             }
         })
@@ -64,17 +64,23 @@ const getConversationById = (req , res) => {
 
 const patchConversation = (req ,res) => {
     const {title , imageUrl} = req.body;
-    const id = req.params.conversation_id;
-    const userId = req.user.id
+    const conversationId = req.params.conversation_id;
+    const partId = req.user.id
 
-    conversationsControllers.editConversation( id , {
-        title , imageUrl , userId
+    conversationsControllers.editConversation( conversationId , partId , {
+        title , imageUrl 
     })
         .then(data => {
-            res.status(200).json({
-                message: 'Conversation succesfully updated' ,
-                data
-            })
+            if (data) {
+                res.status(200).json({
+                    message: 'Conversation succesfully updated' ,
+                    data
+                })
+            } else {
+                res.status(404).json({
+                    message: 'Conversation not found'
+                })
+            }
         })
         .catch(err => {
             res.status(400).json({
@@ -84,10 +90,10 @@ const patchConversation = (req ,res) => {
 };
 
 const deleteConversation = (req , res) => {
-    const id = req.params.conversation_id;
-    const userId = req.user.id
+    const conversationId = req.params.conversation_id;
+    const partId = req.user.id
 
-    conversationsControllers.destroyConversation(id , userId)
+    conversationsControllers.destroyConversation(conversationId , partId)
         .then(data => {
             if (data) {
                 res.status(200).json({
