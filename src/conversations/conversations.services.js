@@ -112,10 +112,40 @@ const deleteConversation = (req , res) => {
         })
 };
 
+const postNewParticipant = (req , res) => {
+    const conversationId = req.params.conversation_id;
+    const {phone} = req.body;
+    const creatorId = req.user.id;
+
+    conversationsControllers.addParticipant({
+        phone , creatorId , conversationId
+    })
+        .then(data => {
+            if (data !== 'notTheOwner') {
+                res.status(201).json(data)
+            } else if (data == 'notTheOwner') {
+                res.status(400).json({
+                    message: 'You are not the creator of the conversation'
+                })
+            } else {
+                res.status(404).json({
+                    message: 'Missing data'
+                })
+            }
+        })
+        .catch(err => {
+            res.status(400).json({
+                message: err.message
+            })
+        })
+};
+
 module.exports = {
     postConversation ,
     getAllConversationsFromUsers ,
     getConversationById ,
     patchConversation ,
-    deleteConversation
+    deleteConversation ,
+    postConversation ,
+    postNewParticipant
 }

@@ -141,10 +141,43 @@ const destroyConversation = async(conversationId , partId) => {
     }
 };
 
+const findConversationByCreatorId = async(creatorId) => {
+    return await Conversations.findOne({
+        where: {
+            userId: creatorId
+        }
+    })
+};
+
+const addParticipant = async(obj) => {
+    try {
+        const owner = await findConversationByCreatorId(obj.creatorId)
+
+        if (owner) {
+            const participant = await findUserByPhone(obj.phone)
+            const data = await Participants.create({
+                id: uuid.v4() ,
+                userId: participant.id ,
+                conversationId: obj.conversationId
+            });
+        
+            return data
+        } else {
+            return 'notTheOwner'
+        }
+    } catch (error) {
+        return null
+    }
+};
+
+// Controller for 3 participants or more
+
 module.exports = {
     createConversation ,
     findAllConversationsFromUser ,
     findConversationById ,
     editConversation ,
-    destroyConversation
+    destroyConversation ,
+    addParticipant ,
+    findConversationByCreatorId
 }
