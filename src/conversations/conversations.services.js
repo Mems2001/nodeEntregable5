@@ -121,7 +121,7 @@ const postNewParticipant = (req , res) => {
         phone , creatorId , conversationId
     })
         .then(data => {
-            if (data !== 'notTheOwner') {
+            if (data && data !== 'notTheOwner') {
                 res.status(201).json(data)
             } else if (data == 'notTheOwner') {
                 res.status(400).json({

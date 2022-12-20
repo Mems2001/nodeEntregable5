@@ -107,17 +107,21 @@ const editConversation = async(conversationId , partId , obj) => {
     try {
         const participant = await findParticipantByUserIdAndConversationId(partId , conversationId)
         // console.log(participant)
- 
-        const data = await Conversations.update({
-            title: obj.title ,
-            imageUrl: obj.imageUrl
-        } , {
-            where: {
-                id: conversationId
-            }
-        });
 
-        return data[0]
+        if (participant) {
+            const data = await Conversations.update({
+                title: obj.title ,
+                imageUrl: obj.imageUrl
+            } , {
+                where: {
+                    id: conversationId
+                }
+            });
+    
+            return data[0]
+        }
+
+        return null
  
     } catch (error) {
         return null

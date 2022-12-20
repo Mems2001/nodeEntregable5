@@ -10,15 +10,43 @@ const createParticipant = async(obj) => {
 };
 
 const findParticipantByUserIdAndConversationId = async(userId , conversationId) => {
-    return await Participants.findOne({
+    const data = await Participants.findOne({
         where: {
             userId ,
             conversationId
         }
     })
+    return data
 };
+
+// const findAllParticipantsFromConversation = async(partId , conversationId) => {
+//     try {
+//         const participant = await Participants.findOne({
+//             where: {
+//                 userId: partId ,
+//                 conversationId
+//             }
+//         })
+//         console.log(participant || 'no hay')
+
+//         if (participant) {
+//             const data = await Participants.findAll({
+//                 where: {
+//                     conversationId
+//                 }
+//             })
+
+//             return data
+//         } else {
+//             return 'notAParticipant'
+//         }
+//     } catch (error) {
+//         return null
+//     }
+// };
 
 module.exports = {
     createParticipant ,
-    findParticipantByUserIdAndConversationId
+    findParticipantByUserIdAndConversationId 
+    // findAllParticipantsFromConversation
 }
