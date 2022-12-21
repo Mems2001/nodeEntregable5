@@ -115,11 +115,9 @@ const deleteConversation = (req , res) => {
 const postNewParticipant = (req , res) => {
     const conversationId = req.params.conversation_id;
     const {phone} = req.body;
-    const creatorId = req.user.id;
+    const userId = req.user.id;
 
-    conversationsControllers.addParticipant({
-        phone , creatorId , conversationId
-    })
+    conversationsControllers.addParticipant({ userId , conversationId , phone })
         .then(data => {
             if (data && data !== 'notTheOwner') {
                 res.status(201).json(data)
@@ -140,6 +138,33 @@ const postNewParticipant = (req , res) => {
         })
 };
 
+const getAllParticipantsFromConversation = (req, res) => {
+    const userId = req.user.id ;
+    const conversationId = req.params.conversation_id;
+    
+    conversationsControllers.findAllParticipantsFromConversation({
+        userId , conversationId
+    })
+        .then(data => {
+            if (data && data !== 'notParticipant') {
+                res.status(200).json(data)
+            } else if (data == 'notParticipant') {
+                res.status(400).json({
+                    message: 'You are not a participant of this conversation'
+                })
+            } else {
+                res.status(404).json({
+                    message: 'Conversation not found'
+                })
+            }
+        })
+        .catch(err => {
+            res.status(400).json({
+                message: err.message
+            })
+        })
+};
+
 module.exports = {
     postConversation ,
     getAllConversationsFromUsers ,
@@ -147,5 +172,6 @@ module.exports = {
     patchConversation ,
     deleteConversation ,
     postConversation ,
-    postNewParticipant
+    postNewParticipant ,
+    getAllParticipantsFromConversation
 }

@@ -5,7 +5,7 @@ const { findParticipantByUserIdAndConversationId } = require('../participants/pa
 const findAllMessagesFromConversation = async(conversationId , partId) => {
     try {
         const a = await findParticipantByUserIdAndConversationId(partId , conversationId)
-        console.log(a)
+        // console.log(a)
         if (a) {
             const data = await Messages.findAll({
                 where: {
@@ -26,7 +26,7 @@ const findAllMessagesFromConversation = async(conversationId , partId) => {
 const createMessage = async(obj , userId) => {
     try {
         const a = await findParticipantByUserIdAndConversationId(userId , obj.conversationId)
-        console.log(a)
+        // console.log(a)
         if (a) {
             const data = await Messages.create({
                 id: uuid.v4() ,
@@ -34,13 +34,12 @@ const createMessage = async(obj , userId) => {
                 userId: obj.userId ,
                 conversationId: obj.conversationId
             });
-            
-            return data
+              return data
         } else {
             return null
         }
     } catch (error) {
-        return null
+        return 'missingData'
     }
 
 };

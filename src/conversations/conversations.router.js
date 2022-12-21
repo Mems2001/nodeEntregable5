@@ -10,10 +10,13 @@ router.route('/')
 // router.route('/group')
 //     .post(passportJwt.authenticate('jwt' , {session:false}) , conversationsServices.postGroupalConversation)
 
-    router.route('/:conversation_id')
+router.route('/:conversation_id')
     .get(passportJwt.authenticate('jwt' , {session:false}) , conversationsServices.getConversationById)
     .patch(passportJwt.authenticate('jwt' , {session:false}) , conversationsServices.patchConversation)
     .delete(passportJwt.authenticate('jwt' , {session:false}) , conversationsServices.deleteConversation)
+
+router.route('/:conversation_id/participants')
     .post(passportJwt.authenticate('jwt' , {session:false}) , conversationsServices.postNewParticipant)
+    .get(passportJwt.authenticate('jwt' , {session:false}) , conversationsServices.getAllParticipantsFromConversation)
 
 module.exports = router

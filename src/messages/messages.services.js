@@ -31,8 +31,12 @@ const postMessage = (req ,res) => {
         userId , conversationId , message
     } , userId)
         .then(data => {
-            if (data) {
+            if (data && data !== 'missingData') {
                 res.status(201).json(data)
+            } else if (data == 'missingData') {
+                res.status(404).json({
+                    message: 'Missing data'
+                })
             } else {
                 res.status(400).json({
                     message: 'You are not part of this conversation'

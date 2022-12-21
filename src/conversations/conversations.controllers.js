@@ -155,19 +155,37 @@ const findConversationByCreatorId = async(creatorId) => {
 
 const addParticipant = async(obj) => {
     try {
-        const owner = await findConversationByCreatorId(obj.creatorId)
-
+        const owner = await findConversationByCreatorId(obj.userId)
+        // console.log(owner)
         if (owner) {
-            const participant = await findUserByPhone(obj.phone)
             const data = await Participants.create({
                 id: uuid.v4() ,
-                userId: participant.id ,
+                userId: obj.userId ,
                 conversationId: obj.conversationId
-            });
-        
+            })
+
             return data
         } else {
             return 'notTheOwner'
+        }
+    } catch (error) {
+        return null
+    }
+};
+
+const findAllParticipantsFromConversation = async(obj) => {
+    try {
+        const participant = await findParticipantByUserIdAndConversationId(obj.userId , obj.conversationId)
+        console.log(participant)
+        if (participant) {
+            const data = await Participants.findAll({
+                where: {
+                    conversationId: obj.conversationId
+                }
+            })
+            return data
+        } else {
+            return 'notParticipant'
         }
     } catch (error) {
         return null
@@ -182,6 +200,7 @@ module.exports = {
     findConversationById ,
     editConversation ,
     destroyConversation ,
+    findConversationByCreatorId ,
     addParticipant ,
-    findConversationByCreatorId
+    findAllParticipantsFromConversation
 }
