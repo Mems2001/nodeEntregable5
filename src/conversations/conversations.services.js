@@ -27,7 +27,7 @@ const postConversation = (req, res) => {
     }
 };
 
-const getAllConversationsFromUsers = (req, res) => {
+const getAllConversationsFromUser = (req, res) => {
     const id = req.user.id;
 
     conversationsControllers.findAllConversationsFromUser(id)
@@ -220,7 +220,7 @@ const deleteParticipant = (req , res) => {
 
 module.exports = {
     postConversation ,
-    getAllConversationsFromUsers ,
+    getAllConversationsFromUser ,
     getConversationById ,
     patchConversation ,
     deleteConversation ,

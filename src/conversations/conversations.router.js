@@ -5,7 +5,7 @@ const conversationsServices = require('./conversations.services');
 
 router.route('/')
     .post(passportJwt.authenticate('jwt' , {session:false}) , conversationsServices.postConversation)
-    .get(passportJwt.authenticate('jwt' , {session:false}), conversationsServices.getAllConversationsFromUsers)
+    .get(passportJwt.authenticate('jwt' , {session:false}), conversationsServices.getAllConversationsFromUser)
     
 // router.route('/group')
 //     .post(passportJwt.authenticate('jwt' , {session:false}) , conversationsServices.postGroupalConversation)
