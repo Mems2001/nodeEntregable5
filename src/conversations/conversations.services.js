@@ -165,6 +165,59 @@ const getAllParticipantsFromConversation = (req, res) => {
         })
 };
 
+const getPaticipantFromConversationById = (req , res) => {
+    const userId = req.user.id ;
+    const conversationId = req.params.conversation_id ;
+    const participantId = req.params.participant_id;
+
+    conversationsControllers.findParticipantFromConversationById(userId , conversationId , participantId)
+        .then(data => {
+            if (data && data !== 'notParticipant') {
+                res.status(200).json(data)
+            } else if (data !== 'notParticipant') {
+                res.status(400).json({
+                    message: 'You are not a participant of this conversation'
+                })
+            } else {
+                res.status(404).json({
+                    message: 'Conversation not found'
+                })
+            }
+        })
+        .catch(err => {
+            res.status(400).json({
+                message: err.message
+            })
+        })
+};
+
+const deleteParticipant = (req , res) => {
+    const userId = req.user.id ;
+    const participantId = req.params.participant_id ;
+
+    conversationsControllers.destroyParticipant(userId , participantId)
+        .then(data => {
+            if (data && data !== 'notTheOwner') {
+                res.status(200).json({
+                    message: 'Participant deleted'
+                })
+            } else if (data == 'notTheOwner') {
+                res.status(400).json({
+                    message: 'You are not the owner of this conversation'
+                })
+            } else {
+                res.status(404).json({
+                    message: 'Conversation not found'
+                })
+            }
+        })
+        .catch(err => {
+            res.status(400).json({
+                message: err.message
+            })
+        })
+};
+
 module.exports = {
     postConversation ,
     getAllConversationsFromUsers ,
@@ -172,6 +225,9 @@ module.exports = {
     patchConversation ,
     deleteConversation ,
     postConversation ,
+    // Participants
     postNewParticipant ,
-    getAllParticipantsFromConversation
+    getAllParticipantsFromConversation ,
+    getPaticipantFromConversationById ,
+    deleteParticipant
 }

@@ -1,8 +1,8 @@
 const Conversations = require('../models/conversations.model');
 const Participants = require('../models/participants.model');
+const Users = require('../models/users.model');
 const uuid = require('uuid');
 const { findUserByPhone, findUserById } = require('../users/users.controllers');
-const Users = require('../models/users.model');
 const { findParticipantByUserIdAndConversationId } = require('../participants/participants.controllers');
 
 const createConversation = async(obj) => {
@@ -176,16 +176,89 @@ const addParticipant = async(obj) => {
 const findAllParticipantsFromConversation = async(obj) => {
     try {
         const participant = await findParticipantByUserIdAndConversationId(obj.userId , obj.conversationId)
-        console.log(participant)
+        // console.log(participant)
         if (participant) {
             const data = await Participants.findAll({
                 where: {
                     conversationId: obj.conversationId
+                } ,
+                include: {
+                    model: Users ,
+                    attributes: {
+                        exclude: [
+                            'password' ,
+                            'createdAt' ,
+                            'updatedAt' ,
+                            'status' ,
+                            'isVerified'
+                        ]
+                    }
+                } ,
+                attributes: {
+                    exclude: [
+                        'userId'
+                    ]
                 }
             })
             return data
         } else {
             return 'notParticipant'
+        }
+    } catch (error) {
+        return null
+    }
+};
+
+const findParticipantFromConversationById = async(userId , conversationId , participantId) => {
+    try {
+        const participant = await findParticipantByUserIdAndConversationId(userId , conversationId)
+        // console.log(participant)
+        if (participant) {
+            const data = await Participants.findOne({
+                where: {
+                    id: participantId ,
+                    conversationId
+                } ,
+                include: {
+                    model: Users ,
+                    attributes: {
+                        exclude: [
+                            'password' ,
+                            'createdAt' ,
+                            'updatedAt',
+                            'status' ,
+                            'isVerified'
+                        ]
+                    } 
+                } ,
+                attributes: {
+                    exclude: [
+                        'userId'
+                    ]
+                }
+            });
+            return data
+        } else {
+            return 'notParticipant'
+        }
+    } catch (error) {
+        return null
+    }
+};
+
+// Only the creator/owner of the conversation will be able to delete a participant
+const destroyParticipant = async(userId , participantId) => {
+    try {
+        const owner = await findConversationByCreatorId(userId);
+        if (owner) {
+            const data = await Participants.destroy({
+                where: {
+                    id: participantId
+                }
+            })
+            return data
+        } else {
+            return 'notTheOwner'
         }
     } catch (error) {
         return null
@@ -201,6 +274,10 @@ module.exports = {
     editConversation ,
     destroyConversation ,
     findConversationByCreatorId ,
+    // Participants
     addParticipant ,
-    findAllParticipantsFromConversation
+    findAllParticipantsFromConversation ,
+    findParticipantByUserIdAndConversationId ,
+    findParticipantFromConversationById ,
+    destroyParticipant
 }

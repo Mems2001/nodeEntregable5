@@ -19,4 +19,8 @@ router.route('/:conversation_id/participants')
     .post(passportJwt.authenticate('jwt' , {session:false}) , conversationsServices.postNewParticipant)
     .get(passportJwt.authenticate('jwt' , {session:false}) , conversationsServices.getAllParticipantsFromConversation)
 
+router.route('/:conversation_id/participants/:participant_id')
+    .get(passportJwt.authenticate('jwt' , {session:false}) , conversationsServices.getPaticipantFromConversationById)
+    .delete(passportJwt.authenticate('jwt' , {session:false}) , conversationsServices.deleteParticipant)
+
 module.exports = router
